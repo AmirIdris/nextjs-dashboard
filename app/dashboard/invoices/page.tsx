@@ -7,16 +7,14 @@ import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { invoices, customers } from '@/app/lib/placeholder-data';
 import { InvoicesTable as InvoicesTableType } from '@/app/lib/definitions';
 
-interface PageProps {
-  searchParams?: {
-    query?: string;
-    page?: string;
-  };
-}
+type Props = {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+};
 
-export default function Page({ searchParams = {} }: PageProps) {
-  const query = searchParams?.query || '';
-  const currentPage = Number(searchParams?.page) || 1;
+export default async function Page({ searchParams }: Props) {
+  const resolvedSearchParams = await searchParams;
+  const query = typeof resolvedSearchParams?.query === 'string' ? resolvedSearchParams.query : '';
+  const currentPage = typeof resolvedSearchParams?.page === 'string' ? Number(resolvedSearchParams.page) : 1;
 
   // Format the invoices data to match the InvoicesTable type
   const formattedInvoices: InvoicesTableType[] = invoices.map(invoice => {
