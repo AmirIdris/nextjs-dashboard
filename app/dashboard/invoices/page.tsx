@@ -7,11 +7,14 @@ import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
 import { invoices, customers } from '@/app/lib/placeholder-data';
 import { InvoicesTable as InvoicesTableType } from '@/app/lib/definitions';
 
-export default function Page({
-  searchParams,
-}: {
-  searchParams: { query: string; page: string };
-}) {
+interface PageProps {
+  searchParams?: {
+    query?: string;
+    page?: string;
+  };
+}
+
+export default function Page({ searchParams = {} }: PageProps) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
 
