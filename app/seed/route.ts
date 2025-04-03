@@ -1,4 +1,3 @@
-import bcrypt from 'bcrypt';
 import postgres, { Sql } from 'postgres';
 import { invoices, customers, revenue, users } from '../lib/placeholder-data';
 
@@ -16,6 +15,16 @@ try {
   throw new Error('Failed to connect to the database. Please check your connection settings.');
 }
 
+// Simple password hashing function using Web Crypto API
+async function hashPassword(password: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(password);
+  const hash = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hash))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 async function seedUsers() {
   try {
     await sql`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`;
@@ -30,7 +39,7 @@ async function seedUsers() {
 
     const insertedUsers = await Promise.all(
       users.map(async (user) => {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const hashedPassword = await hashPassword(user.password);
         return sql`
           INSERT INTO users (id, name, email, password)
           VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
